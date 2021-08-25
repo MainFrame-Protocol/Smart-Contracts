@@ -99,7 +99,6 @@ contract PaymentSubscription is Ownable {
         Plan storage plan = plans[planId];
         require(plan.token != address(0), 'this plan does not exist');
 
-
         token.transferFrom(msg.sender, address(this), plan.amount);  
 
         emit PaymentSent(
