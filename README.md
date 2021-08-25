@@ -1,2 +1,2 @@
 # Protocol - Smart Contracts
-MainFrame Protocol CrowdSale Smart Contracts + Tests
+MainFrame Protocol - Smart Contracts + Tests
