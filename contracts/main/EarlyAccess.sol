@@ -40,33 +40,10 @@ contract EarlyAccess is Ownable {
         emit UserValidated(msg.sender);
     }
 
-    function userIsValidated(address _user) external onlyAdmin() view returns (bool) {
+    function userIsValidated(address _user) external view returns (bool) {
         AccessToken tokenInstance = AccessToken(token);
 
         return isValidated[_user] && tokenInstance.balanceOf(_user) >= minTokenAmountForWhitelist;
-    }
-
-    function addAdmins(address[] calldata admins) external onlyOwner {
-        for (uint256 i = 0; i < admins.length; i++) {
-            if (admins[i] == address(0)) {
-                continue;
-            }
-            isAdmin[admins[i]] = true;
-        }
-    }
-
-    function removeAdmins(address[] calldata admins) external onlyOwner {
-        for (uint256 i = 0; i < admins.length; i++) {
-            if (admins[i] == address(0)) {
-                continue;
-            }
-            isAdmin[admins[i]] = false;
-        }
-    }
-
-     modifier onlyAdmin() {
-        require(isAdmin[msg.sender] || super.owner() == msg.sender, "unauthorized");
-        _;
     }
 }
 
