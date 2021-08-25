@@ -50,19 +50,57 @@ contract('PaymentSubscription', addresses => {
   });
 
   it('should remove a plan', async () => {
+    await payment.createPlan("GOLD", token.address, 100, THIRTY_DAYS);
+    let plan1 = await payment.plans(0);
+    assert(plan1.token === token.address);
+    assert(plan1.amount.toString() === '100'); 
+    assert(plan1.frequency.toString() === THIRTY_DAYS.toString()); 
 
+    await payment.removePlan(0);
+    plan1 = await payment.plans(0);
+    assert(plan1.token === '0x0000000000000000000000000000000000000000');
   });
 
   it('should NOT remove a plan', async () => {
-
+    await expectRevert(
+        payment.removePlan(0),
+        'this plan does not exist'
+      );
   });
 
   it('should update a plan', async () => {
+    await payment.createPlan("GOLD", token.address, 100, THIRTY_DAYS);
+    let plan1 = await payment.plans(0);
+    assert(plan1.token === token.address);
+    assert(plan1.amount.toString() === '100'); 
+    assert(plan1.frequency.toString() === THIRTY_DAYS.toString()); 
 
+    await payment.updatePlan(0, "PLATINUM", token.address, 200, SIXTY_DAYS);
+    plan1 = await payment.plans(0);
+    assert(plan1.token === token.address);
+    assert(plan1.amount.toString() === '200'); 
+    assert(plan1.frequency.toString() === SIXTY_DAYS.toString()); 
   });
 
   it('should NOT update a plan', async () => {
+    await payment.createPlan("GOLD", token.address, 100, THIRTY_DAYS);
 
+    await expectRevert(
+        payment.updatePlan(0, "", constants.ZERO_ADDRESS, 100, THIRTY_DAYS),
+        'name cannot be empty'
+      );
+      await expectRevert(
+        payment.updatePlan(0, "GOLD", constants.ZERO_ADDRESS, 100, THIRTY_DAYS),
+        'address cannot be null address'
+      );
+      await expectRevert(
+        payment.updatePlan(0, "GOLD", token.address, 0, THIRTY_DAYS),
+        'amount needs to be > 0'
+      );
+      await expectRevert(
+        payment.updatePlan(0, "GOLD", token.address, 100, 0),
+        'frequency needs to be > 0'
+      );
   });
 
   it('should create a subscription', async () => {
