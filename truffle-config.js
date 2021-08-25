@@ -1,3 +1,4 @@
+
 /**
  * Use this file to configure your truffle project. It's seeded with some
  * common settings for different networks and features like migrations,
@@ -18,11 +19,11 @@
  *
  */
 
-// const HDWalletProvider = require('@truffle/hdwallet-provider');
+const HDWalletProvider = require('@truffle/hdwallet-provider');
 // const infuraKey = "fj4jll3k.....";
 //
-// const fs = require('fs');
-// const mnemonic = fs.readFileSync(".secret").toString().trim();
+const fs = require('fs');
+const mnemonic = fs.readFileSync(".secret").toString().trim();
 
 module.exports = {
   /**
@@ -47,6 +48,51 @@ module.exports = {
         port: 7545,
         network_id: '*'
     },
+    mainnet: {
+      //provider: () => new HDWalletProvider(secrets.seed, ''),
+      //provider: () => new HDWalletProvider(secrets.seed, "https://testnet.mainFrame.app/rpc"),
+      provider: () => new HDWalletProvider(secrets.seed, "wss://mainnet.mainFrame.app/ws"),
+      network_id: 30,
+        gasPrice: 65000010,
+        gas: 3000000,
+        networkCheckTimeout: 1e9,
+        timeoutBlocks: 500000
+    },
+    theta_privatenet: {
+      provider: () => {
+        // private key for test wallet #1: 0x19E7E376E7C213B7E7e7e46cc70A5dD086DAff2A 
+        var privateKeyTest1 = '1111111111111111111111111111111111111111111111111111111111111111';
+ 
+        // private key for test wallet #2: 0x1563915e194D8CfBA1943570603F7606A3115508
+        var privateKeyTest2 = '2222222222222222222222222222222222222222222222222222222222222222';
+ 
+        return new HDWalletProvider({
+          privateKeys: [privateKeyTest1, privateKeyTest2],
+          providerOrUrl: 'http://localhost:18888/rpc',
+        });
+      },
+      network_id: 366,
+      gasPrice: 4000000000000,
+    },
+    theta_testnet: {
+      provider: () => {
+        // Replace the private key below with the private key of the deployer wallet. 
+        // Make sure the deployer wallet has a sufficient amount of TFuel, e.g. 100 TFuel
+ 
+        return new HDWalletProvider(secrets.seed, 'https://eth-rpc-api-testnet.thetatoken.org/rpc');
+      },
+      network_id: 365,
+      gasPrice: 4000000000000,
+    },
+    theta_mainnet: {
+      provider: () => {
+        // Replace the private key below with the private key of the deployer wallet. 
+        // Make sure the deployer wallet has a sufficient amount of TFuel, e.g. 100 TFuel
+        return new HDWalletProvider(secrets.seed, 'https://eth-rpc-api.thetatoken.org/rpc');
+      },
+      network_id: 361,
+      gasPrice: 4000000000000,
+    }
     // Another network with more advanced options...
     // advanced: {
     // port: 8777,             // Custom port

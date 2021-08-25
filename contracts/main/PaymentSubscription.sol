@@ -10,62 +10,62 @@ contract PaymentSubscription is Ownable {
 
     mapping(address => bool) public isAdmin;
 
-    uint public nextPlan;
+    uint256 public nextPlan;
 
     struct Plan {
         string planName;
         address token;
-        uint amount;
-        uint frequency;
+        uint256 amount;
+        uint256 frequency;
     }
 
     struct Subscription {
         address subscriber;
-        uint start;
-        uint nextPayment;
+        uint256 start;
+        uint256 nextPayment;
     }
 
-    mapping(uint => Plan) public plans;
-    mapping(address => mapping(uint => Subscription)) public subscriptions;
+    mapping(uint256 => Plan) public plans;
+    mapping(address => mapping(uint256 => Subscription)) public subscriptions;
   
     event PlanCreated(
         string planName,
         address token,
-        uint amount,
-        uint frequency
+        uint256 amount,
+        uint256 frequency
     );
     event PlanRemoved(
-        uint planId,
+        uint256 planId,
         string planName,
         address token,
-        uint amount,
-        uint frequency
+        uint256 amount,
+        uint256 frequency
     );
     event PlanUpdated(
-        uint planId,
+        uint256 planId,
         string planName,
         address token,
-        uint amount,
-        uint frequency
+        uint256 amount,
+        uint256 frequency
     );
     event SubscriptionCreated(
         address subscriber,
-        uint planId,
-        uint date
+        uint256 planId,
+        uint256 date
     );
     event SubscriptionCancelled(
         address subscriber,
-        uint planId,
-        uint date
+        uint256 planId,
+        uint256 date
     );
     event PaymentSent(
         address from,
-        uint amount,
-        uint planId,
-        uint date
+        uint256 amount,
+        uint256 planId,
+        uint256 date
     );
 
-    function createPlan(string calldata name, address token, uint amount, uint frequency) external onlyAdmin {
+    function createPlan(string calldata name, address token, uint256 amount, uint256 frequency) external onlyAdmin {
         require(keccak256(abi.encodePacked(name)) != keccak256(abi.encodePacked('')), 'name cannot be empty');
         require(token != address(0), 'address cannot be null address');
         require(amount > 0, 'amount needs to be > 0');
@@ -83,7 +83,7 @@ contract PaymentSubscription is Ownable {
         nextPlan++;
     }
 
-    function updatePlan(uint planId, string calldata name, address token, uint amount, uint frequency) external onlyAdmin {
+    function updatePlan(uint256 planId, string calldata name, address token, uint256 amount, uint256 frequency) external onlyAdmin {
         require(keccak256(abi.encodePacked(name)) != keccak256(abi.encodePacked('')), 'name cannot be empty');
         require(token != address(0), 'address cannot be null address');
         require(amount > 0, 'amount needs to be > 0');
@@ -99,7 +99,7 @@ contract PaymentSubscription is Ownable {
         emit PlanUpdated(planId, name, token, amount, frequency);
     }
 
-    function removePlan(uint planId) external onlyAdmin {
+    function removePlan(uint256 planId) external onlyAdmin {
         Plan storage plan = plans[planId];
         require(plan.token != address(0), 'this plan does not exist');
 
@@ -107,7 +107,7 @@ contract PaymentSubscription is Ownable {
         emit PlanRemoved(planId, plan.planName, plan.token, plan.amount, plan.frequency);
     }
 
-    function cancel(uint planId) external {
+    function cancel(uint256 planId) external {
         Subscription storage subscription = subscriptions[msg.sender][planId];
 
         require(
@@ -120,7 +120,7 @@ contract PaymentSubscription is Ownable {
     }
 
 
-   function subscribe(uint planId) external {
+   function subscribe(uint256 planId) external {
         IERC20 token = IERC20(plans[planId].token);
         Plan storage plan = plans[planId];
         require(plan.token != address(0), 'this plan does not exist');
@@ -143,7 +143,7 @@ contract PaymentSubscription is Ownable {
         emit SubscriptionCreated(msg.sender, planId, block.timestamp);
     }
 
-    function pay(address subscriber, uint planId) external {
+    function pay(address subscriber, uint256 planId) external {
         Subscription storage subscription = subscriptions[subscriber][planId];
         Plan storage plan = plans[planId];
         IERC20 token = IERC20(plan.token);
