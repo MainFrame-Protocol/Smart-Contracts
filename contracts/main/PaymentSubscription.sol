@@ -35,8 +35,15 @@ contract PaymentSubscription is Ownable {
         uint frequency
     );
     event PlanRemoved(
-        string planName,
         uint planId,
+        string planName,
+        address token,
+        uint amount,
+        uint frequency
+    );
+    event PlanUpdated(
+        uint planId,
+        string planName,
         address token,
         uint amount,
         uint frequency
@@ -59,6 +66,7 @@ contract PaymentSubscription is Ownable {
     );
 
     function createPlan(string calldata name, address token, uint amount, uint frequency) external onlyAdmin {
+        require(keccak256(abi.encodePacked(name)) != keccak256(abi.encodePacked('')), 'name cannot be empty');
         require(token != address(0), 'address cannot be null address');
         require(amount > 0, 'amount needs to be > 0');
         require(frequency > 0, 'frequency needs to be > 0');
@@ -75,6 +83,30 @@ contract PaymentSubscription is Ownable {
         nextPlan++;
     }
 
+    function updatePlan(uint planId, string calldata name, address token, uint amount, uint frequency) external onlyAdmin {
+        require(keccak256(abi.encodePacked(name)) != keccak256(abi.encodePacked('')), 'name cannot be empty');
+        require(token != address(0), 'address cannot be null address');
+        require(amount > 0, 'amount needs to be > 0');
+        require(frequency > 0, 'frequency needs to be > 0');
+
+        plans[planId] = Plan(
+            name,
+            token,
+            amount, 
+            frequency
+        );
+
+        emit PlanUpdated(planId, name, token, amount, frequency);
+    }
+
+    function removePlan(uint planId) external onlyAdmin {
+        Plan storage plan = plans[planId];
+        require(plan.token != address(0), 'this plan does not exist');
+
+        delete plans[planId];
+        emit PlanRemoved(planId, plan.planName, plan.token, plan.amount, plan.frequency);
+    }
+
     function cancel(uint planId) external {
         Subscription storage subscription = subscriptions[msg.sender][planId];
 
@@ -87,13 +119,6 @@ contract PaymentSubscription is Ownable {
         emit SubscriptionCancelled(msg.sender, planId, block.timestamp);
     }
 
-    function removePlan(uint planId) external onlyAdmin {
-        Plan storage plan = plans[planId];
-        require(plan.token != address(0), 'this plan does not exist');
-
-        delete plans[planId];
-        emit PlanRemoved(plan.planName, planId, plan.token, plan.amount, plan.frequency);
-    }
 
    function subscribe(uint planId) external {
         IERC20 token = IERC20(plans[planId].token);

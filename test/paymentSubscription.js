@@ -32,6 +32,10 @@ contract('PaymentSubscription', addresses => {
 
   it('should NOT create a plan', async () => {
     await expectRevert(
+      payment.createPlan("", constants.ZERO_ADDRESS, 100, THIRTY_DAYS),
+      'name cannot be empty'
+    );
+    await expectRevert(
       payment.createPlan("GOLD", constants.ZERO_ADDRESS, 100, THIRTY_DAYS),
       'address cannot be null address'
     );
@@ -43,6 +47,22 @@ contract('PaymentSubscription', addresses => {
       payment.createPlan("GOLD", token.address, 100, 0),
       'frequency needs to be > 0'
     );
+  });
+
+  it('should remove a plan', async () => {
+
+  });
+
+  it('should NOT remove a plan', async () => {
+
+  });
+
+  it('should update a plan', async () => {
+
+  });
+
+  it('should NOT update a plan', async () => {
+
   });
 
   it('should create a subscription', async () => {
@@ -105,13 +125,5 @@ contract('PaymentSubscription', addresses => {
       payment.cancel(0, {from: subscriber}),
       'this subscription does not exist'
     );
-  });
-
-  it('should remove a plan', async () => {
-
-  });
-
-  it('should not remove a plan', async () => {
-    
   });
 });
