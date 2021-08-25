@@ -33,7 +33,7 @@ contract EarlyAccess is Ownable {
 
         require(
             tokenInstance.balanceOf(msg.sender) >= minTokenAmountForWhitelist,
-            "User does not own enough token"
+            "user does not own enough token"
         );
 
         isValidated[msg.sender] = true;
