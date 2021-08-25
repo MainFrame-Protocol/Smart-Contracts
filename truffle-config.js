@@ -48,16 +48,6 @@ module.exports = {
         port: 7545,
         network_id: '*'
     },
-    mainnet: {
-      //provider: () => new HDWalletProvider(secrets.seed, ''),
-      //provider: () => new HDWalletProvider(secrets.seed, "https://testnet.mainFrame.app/rpc"),
-      provider: () => new HDWalletProvider(secrets.seed, "wss://mainnet.mainFrame.app/ws"),
-      network_id: 30,
-        gasPrice: 65000010,
-        gas: 3000000,
-        networkCheckTimeout: 1e9,
-        timeoutBlocks: 500000
-    },
     theta_privatenet: {
       provider: () => {
         // private key for test wallet #1: 0x19E7E376E7C213B7E7e7e46cc70A5dD086DAff2A 
@@ -79,7 +69,7 @@ module.exports = {
         // Replace the private key below with the private key of the deployer wallet. 
         // Make sure the deployer wallet has a sufficient amount of TFuel, e.g. 100 TFuel
  
-        return new HDWalletProvider(secrets.seed, 'https://eth-rpc-api-testnet.thetatoken.org/rpc');
+        return new HDWalletProvider(mnemonic, 'https://eth-rpc-api-testnet.thetatoken.org/rpc');
       },
       network_id: 365,
       gasPrice: 4000000000000,
@@ -88,7 +78,7 @@ module.exports = {
       provider: () => {
         // Replace the private key below with the private key of the deployer wallet. 
         // Make sure the deployer wallet has a sufficient amount of TFuel, e.g. 100 TFuel
-        return new HDWalletProvider(secrets.seed, 'https://eth-rpc-api.thetatoken.org/rpc');
+        return new HDWalletProvider(mnemonic, 'https://eth-rpc-api.thetatoken.org/rpc');
       },
       network_id: 361,
       gasPrice: 4000000000000,
