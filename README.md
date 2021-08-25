@@ -1,2 +1,2 @@
-# CrowdSale
-MainFrame - vMain CrowdSale Smart Contracts + Tests
+# Protocol - Smart Contract
+MainFrame Protocol CrowdSale Smart Contracts + Tests

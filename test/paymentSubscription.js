@@ -5,7 +5,7 @@ const Token = artifacts.require('AccessToken.sol');
 const THIRTY_DAYS = time.duration.days(30); 
 const SIXTY_DAYS = time.duration.days(60); 
 
-contract('Payment', addresses => {
+contract('PaymentSubscription', addresses => {
   const [admin, subscriber, _] = addresses;
   let payment, token;
 
@@ -105,5 +105,13 @@ contract('Payment', addresses => {
       payment.cancel(0, {from: subscriber}),
       'this subscription does not exist'
     );
+  });
+
+  it('should remove a plan', async () => {
+
+  });
+
+  it('should not remove a plan', async () => {
+    
   });
 });

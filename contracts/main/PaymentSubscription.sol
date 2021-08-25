@@ -89,6 +89,7 @@ contract PaymentSubscription is Ownable {
 
     function removePlan(uint planId) external onlyAdmin {
         Plan storage plan = plans[planId];
+        require(plan.token != address(0), 'this plan does not exist');
 
         delete plans[planId];
         emit PlanRemoved(plan.planName, planId, plan.token, plan.amount, plan.frequency);
