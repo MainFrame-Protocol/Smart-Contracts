@@ -9,12 +9,9 @@
 * Summary
 
 
-#### Token details
+#### Contract details
 
-Token contract address: 
-Token allocation: 
-Smart contract deployment address: 
-
+Deployment address: 
 
 #### Testing methodology
 
