@@ -2,7 +2,7 @@
 
 #### Table of contents 
 
-* Token details
+* Contract details
 * Testing methodology
 * Scope of work
 * Vulnerabilities
