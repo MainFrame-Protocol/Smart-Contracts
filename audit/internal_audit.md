@@ -50,8 +50,8 @@ The following report contains results for four (4) contract files:
     
 #### Vulnerabilities
 
-During the internal audit a number of ten (10) vulnerabilities were found. Three (3) vulnerabilities were classified as 
-a Medium risk and seven (7) vulnerabilities were classified as low risk. Vulnerability details can be consulted in the
+During the internal audit a number of two (2) vulnerabilities were found. One (1) vulnerabilities was classified as 
+a Medium risk and one (1) vulnerabilities was classified as low risk. Vulnerability details can be consulted in the
 section below. 
 
  #### 1. Gas limit in loops.
@@ -59,15 +59,22 @@ section below.
  ##### Description
    Ethereum is a very resource-constrained environment. Prices per computational step are orders of magnitude higher than with centralized providers. Moreover, Ethereum miners impose a limit on the total number of gas consumed in a block. If array.length is large enough, the function exceeds the block gas limit, and transactions calling it will never be confirmed. 
  ##### Mitigation
-   The array in  `/contracts/main/PaymentSubscription.sol` has a maximum size of 5 elements. 
+   The array in  `/contracts/main/PaymentSubscription.sol` has a maximum size of 5 elements thus it cannot be affected by the aforementioned issue. 
  ##### Affected resource 
    The functions `addAdmins` and `removeAdmin` from `/contracts/main/PaymentSubscription.sol`
  
- #### 2. Redundant payment rejection fallback. 
  
- #### 3. Array length manipulation.
- #### 4. Safe math library used. 
- #### 5. Revert require.
+ #### 2. Safe math library used. 
 
+ ##### Description
+ SafeMath library is found to be used in the contract. This increases gas consumption than traditional methods and validations if done manually.
+ Also, Solidity 0.8 includes checked arithmetic operations by default, and this renders SafeMath unnecessary.
+ ##### Mitigation
+ Theta blockchain gas fees are very low thus this is a false positive. Contracts will be upgraded to the latest version of Solidity long term.
+ ##### Affected resource 
+ ```
+ /contracts/main/PaymentSubscription.sol 
+ /contracts/main/EarlyAccess.sol
+ ```
 
 #### Summary
