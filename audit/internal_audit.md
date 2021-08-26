@@ -78,3 +78,6 @@ section below.
  ```
 
 #### Summary
+
+The vulnerabilities found during the internal audit do not pose a direct threat to the underlying contract/token operations
+and the mitigations in place are considered sufficient for safe deployment.
