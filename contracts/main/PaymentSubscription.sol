@@ -25,6 +25,7 @@ contract PaymentSubscription is Ownable {
 
     mapping(uint256 => Plan) public plans;
     mapping(address => mapping(uint256 => Subscription)) public subscriptions;
+    mapping(address => uint256) public userSubscriptionPlan;
   
     event PlanCreated(
         string planName,
@@ -117,6 +118,8 @@ contract PaymentSubscription is Ownable {
         );
 
         delete subscriptions[msg.sender][planId]; 
+        delete userSubscriptionPlan[msg.sender];
+        
         emit SubscriptionCancelled(msg.sender, planId, block.timestamp);
     }
 
@@ -133,6 +136,8 @@ contract PaymentSubscription is Ownable {
             block.timestamp, 
             block.timestamp + plan.frequency
         );
+
+        userSubscriptionPlan[msg.sender] = planId;     
 
         emit SubscriptionCreated(msg.sender, planId, block.timestamp);
     }
