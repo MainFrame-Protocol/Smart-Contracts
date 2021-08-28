@@ -151,7 +151,7 @@ contract('PaymentSubscription', addresses => {
     await payment.subscribe(1, {from: subscriber, value: "100"});
     balanceSubscriber = await web3.eth.getBalance(subscriber);
 
-    assert(balance0Before - balanceSubscriber > 1765639999995904 && balance0Before - balanceSubscriber < 1965639999995904);
+    assert(balance0Before - balanceSubscriber > 2168260000006144 && balance0Before - balanceSubscriber < 2368260000006144);
 
     balance0Before = await web3.eth.getBalance(subscriber);
     await time.increase(THIRTY_DAYS + 1);
