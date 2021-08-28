@@ -78,7 +78,7 @@ module.exports = {
       provider: () => {
         // Replace the private key below with the private key of the deployer wallet. 
         // Make sure the deployer wallet has a sufficient amount of TFuel, e.g. 100 TFuel
-        return new HDWalletProvider(mnemonic, 'https://eth-rpc-api.thetatoken.org/rpc');
+        return new HDWalletProvider(mnemonic, 'https://eth-rpc-try.thetatoken.org/rpc');
       },
       network_id: 361,
       gasPrice: 4000000000000,

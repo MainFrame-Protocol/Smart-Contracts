@@ -4,6 +4,7 @@ const Token = artifacts.require('AccessToken.sol');
 
 const THIRTY_DAYS = time.duration.days(30); 
 const SIXTY_DAYS = time.duration.days(60); 
+const ONE_SECOND = time.duration.seconds(1); 
 
 contract('PaymentSubscription', addresses => {
   const [admin, subscriber, _] = addresses;
@@ -23,21 +24,29 @@ contract('PaymentSubscription', addresses => {
     assert(plan1.amount.toString() === '100'); 
     assert(plan1.frequency.toString() === THIRTY_DAYS.toString()); 
 
+    await payment.createPlan("GOLD", constants.ZERO_ADDRESS, 1, THIRTY_DAYS);
+    const plan12 = await payment.plans(1);
+    assert(plan12.token === constants.ZERO_ADDRESS);
+    assert(plan12.amount.toString() === '1'); 
+    assert(plan12.frequency.toString() === THIRTY_DAYS.toString()); 
+
     await payment.createPlan("PLATINUM", token.address, 200, SIXTY_DAYS);
-    const plan2 = await payment.plans(1);
+    const plan2 = await payment.plans(2);
     assert(plan2.token === token.address);
     assert(plan2.amount.toString() === '200'); 
     assert(plan2.frequency.toString() === SIXTY_DAYS.toString()); 
+
+    await payment.createPlan("PLATINUM", constants.ZERO_ADDRESS, 2, SIXTY_DAYS);
+    const plan22 = await payment.plans(3);
+    assert(plan22.token === constants.ZERO_ADDRESS);
+    assert(plan22.amount.toString() === '2'); 
+    assert(plan22.frequency.toString() === SIXTY_DAYS.toString()); 
   });
 
   it('should NOT create a plan', async () => {
     await expectRevert(
       payment.createPlan("", constants.ZERO_ADDRESS, 100, THIRTY_DAYS),
       'name cannot be empty'
-    );
-    await expectRevert(
-      payment.createPlan("GOLD", constants.ZERO_ADDRESS, 100, THIRTY_DAYS),
-      'address cannot be null address'
     );
     await expectRevert(
       payment.createPlan("GOLD", token.address, 0, THIRTY_DAYS),
@@ -90,10 +99,6 @@ contract('PaymentSubscription', addresses => {
         'name cannot be empty'
       );
       await expectRevert(
-        payment.updatePlan(0, "GOLD", constants.ZERO_ADDRESS, 100, THIRTY_DAYS),
-        'address cannot be null address'
-      );
-      await expectRevert(
         payment.updatePlan(0, "GOLD", token.address, 0, THIRTY_DAYS),
         'amount needs to be > 0'
       );
@@ -129,14 +134,38 @@ contract('PaymentSubscription', addresses => {
     assert(balanceSubscriber.toString() === '900');
 
     await time.increase(THIRTY_DAYS + 1);
-    await payment.pay(subscriber, 0);
+    await payment.pay(subscriber, 0, {from: subscriber});
     balanceSubscriber = await token.balanceOf(subscriber); 
     assert(balanceSubscriber.toString() === '800');
 
+    let balance0Before = await web3.eth.getBalance(subscriber);
     await time.increase(THIRTY_DAYS + 1);
-    await payment.pay(subscriber, 0);
+    await payment.pay(subscriber, 0, {from: subscriber, value: "500"});
+    balanceSubscriber = await web3.eth.getBalance(subscriber);
+    assert(balance0Before - balanceSubscriber > 1305060000006144 && balance0Before - balanceSubscriber < 1505060000006144);
     balanceSubscriber = await token.balanceOf(subscriber); 
     assert(balanceSubscriber.toString() === '700');
+
+    balance0Before = await web3.eth.getBalance(subscriber);
+    await payment.createPlan("GOLD", constants.ZERO_ADDRESS, 100, THIRTY_DAYS);
+    await payment.subscribe(1, {from: subscriber, value: "100"});
+    balanceSubscriber = await web3.eth.getBalance(subscriber);
+
+    assert(balance0Before - balanceSubscriber > 1765639999995904 && balance0Before - balanceSubscriber < 1965639999995904);
+
+    balance0Before = await web3.eth.getBalance(subscriber);
+    await time.increase(THIRTY_DAYS + 1);
+    await payment.pay(subscriber, 1, {from: subscriber, value: "100"});
+    balanceSubscriber = await web3.eth.getBalance(subscriber);
+
+    assert(balance0Before - balanceSubscriber > 703520000008192 && balance0Before - balanceSubscriber < 793520000008192);
+
+    balance0Before = await web3.eth.getBalance(subscriber);
+    await time.increase(THIRTY_DAYS + 1);
+    await payment.pay(subscriber, 1, {from: subscriber, value: "300"});
+    balanceSubscriber = await web3.eth.getBalance(subscriber);
+
+    assert(balance0Before - balanceSubscriber > 907259999985664 && balance0Before - balanceSubscriber < 997259999985664);
   });
 
   it('should subscribe and NOT pay', async () => {
@@ -145,8 +174,32 @@ contract('PaymentSubscription', addresses => {
     await payment.subscribe(0, {from: subscriber});
     await time.increase(THIRTY_DAYS - 1);
     await expectRevert(
-      payment.pay(subscriber, 0),
+      payment.pay(subscriber, 0, {from: subscriber}),
       'not due yet'
+    );
+
+    await payment.createPlan("GOLD", constants.ZERO_ADDRESS, 100, THIRTY_DAYS);
+
+    await payment.subscribe(1, {from: subscriber, value: "100"});
+    await time.increase(THIRTY_DAYS - 1);
+    await expectRevert(
+      payment.pay(subscriber, 1, {from: subscriber, value: "300"}),
+      'not due yet'
+    );
+  });
+
+  it('should NOT pay, inexistent plan', async () => {
+    await expectRevert(
+      payment.pay(subscriber, 0, {from: subscriber}),
+      'this plan does not exist'
+    );
+  });
+
+  it('should NOT pay, inexistent subscription', async () => {
+    await payment.createPlan("GOLD", token.address, 100, THIRTY_DAYS);
+    await expectRevert(
+      payment.pay(subscriber, 0, {from: subscriber}),
+      'this subscription does not exist'
     );
   });
 
@@ -154,7 +207,13 @@ contract('PaymentSubscription', addresses => {
     await payment.createPlan("GOLD", token.address, 100, THIRTY_DAYS);
     await payment.subscribe(0, {from: subscriber});
     await payment.cancel(0, {from: subscriber});
-    const subscription = await payment.subscriptions(subscriber, 0);
+    let subscription = await payment.subscriptions(subscriber, 0);
+    assert(subscription.subscriber === constants.ZERO_ADDRESS);
+
+    await payment.createPlan("GOLD", constants.ZERO_ADDRESS, 100, THIRTY_DAYS);
+    await payment.subscribe(1, {from: subscriber, value: "100"});
+    await payment.cancel(1, {from: subscriber});
+    subscription = await payment.subscriptions(subscriber, 1);
     assert(subscription.subscriber === constants.ZERO_ADDRESS);
   });
 
