@@ -134,13 +134,13 @@ contract('PaymentSubscription', addresses => {
     assert(balanceSubscriber.toString() === '900');
 
     await time.increase(THIRTY_DAYS + 1);
-    await payment.pay(subscriber, 0, {from: subscriber});
+    await payment.pay(0, {from: subscriber});
     balanceSubscriber = await token.balanceOf(subscriber); 
     assert(balanceSubscriber.toString() === '800');
 
     let balance0Before = await web3.eth.getBalance(subscriber);
     await time.increase(THIRTY_DAYS + 1);
-    await payment.pay(subscriber, 0, {from: subscriber, value: "500"});
+    await payment.pay(0, {from: subscriber, value: "500"});
     balanceSubscriber = await web3.eth.getBalance(subscriber);
     assert(balance0Before - balanceSubscriber > 1305060000006144 && balance0Before - balanceSubscriber < 1505060000006144);
     balanceSubscriber = await token.balanceOf(subscriber); 
@@ -155,14 +155,14 @@ contract('PaymentSubscription', addresses => {
 
     balance0Before = await web3.eth.getBalance(subscriber);
     await time.increase(THIRTY_DAYS + 1);
-    await payment.pay(subscriber, 1, {from: subscriber, value: "100"});
+    await payment.pay(1, {from: subscriber, value: "100"});
     balanceSubscriber = await web3.eth.getBalance(subscriber);
 
     assert(balance0Before - balanceSubscriber > 703520000008192 && balance0Before - balanceSubscriber < 793520000008192);
 
     balance0Before = await web3.eth.getBalance(subscriber);
     await time.increase(THIRTY_DAYS + 1);
-    await payment.pay(subscriber, 1, {from: subscriber, value: "300"});
+    await payment.pay(1, {from: subscriber, value: "300"});
     balanceSubscriber = await web3.eth.getBalance(subscriber);
 
     assert(balance0Before - balanceSubscriber > 907259999985664 && balance0Before - balanceSubscriber < 997259999985664);
@@ -174,7 +174,7 @@ contract('PaymentSubscription', addresses => {
     await payment.subscribe(0, {from: subscriber});
     await time.increase(THIRTY_DAYS - 1);
     await expectRevert(
-      payment.pay(subscriber, 0, {from: subscriber}),
+      payment.pay(0, {from: subscriber}),
       'not due yet'
     );
 
@@ -183,14 +183,14 @@ contract('PaymentSubscription', addresses => {
     await payment.subscribe(1, {from: subscriber, value: "100"});
     await time.increase(THIRTY_DAYS - 1);
     await expectRevert(
-      payment.pay(subscriber, 1, {from: subscriber, value: "300"}),
+      payment.pay(1, {from: subscriber, value: "300"}),
       'not due yet'
     );
   });
 
   it('should NOT pay, inexistent plan', async () => {
     await expectRevert(
-      payment.pay(subscriber, 0, {from: subscriber}),
+      payment.pay(0, {from: subscriber}),
       'this plan does not exist'
     );
   });
@@ -198,7 +198,7 @@ contract('PaymentSubscription', addresses => {
   it('should NOT pay, inexistent subscription', async () => {
     await payment.createPlan("GOLD", token.address, 100, THIRTY_DAYS);
     await expectRevert(
-      payment.pay(subscriber, 0, {from: subscriber}),
+      payment.pay(0, {from: subscriber}),
       'this subscription does not exist'
     );
   });

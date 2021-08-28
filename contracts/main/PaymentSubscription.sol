@@ -144,12 +144,12 @@ contract PaymentSubscription is Ownable {
         emit SubscriptionCreated(msg.sender, planId, block.timestamp);
     }
 
-    function pay(address subscriber, uint256 planId) payable external {
-        Subscription storage subscription = subscriptions[subscriber][planId];
+    function pay(uint256 planId) payable external {
+        Subscription storage subscription = subscriptions[msg.sender][planId];
         Plan storage plan = plans[planId];
 
         require(plan.amount > 0, 'this plan does not exist');
-        require(subscription.subscriber == subscriber, 'this subscription does not exist');
+        require(subscription.subscriber == msg.sender, 'this subscription does not exist');
 
         require(
             block.timestamp > subscription.nextPayment,
@@ -159,7 +159,7 @@ contract PaymentSubscription is Ownable {
         payTokenPlans(plan, msg.sender, msg.value);
 
         emit PaymentSent(
-            subscriber,
+            msg.sender,
             plan.amount, 
             planId, 
             block.timestamp

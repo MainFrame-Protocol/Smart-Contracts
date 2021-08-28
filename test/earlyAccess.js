@@ -19,9 +19,7 @@ contract('EarlyAccess', addresses => {
 
     assert(tokenBalance == minTokenAmountForWhitelist);
 
-    let tx = await earlyAccess.validateWallet({from: subscriber});
-
-    console.log(tx);
+    await earlyAccess.validateWallet({from: subscriber});
 
     let isUserValidated = await earlyAccess.userIsValidated(subscriber, {from: admin});
 
