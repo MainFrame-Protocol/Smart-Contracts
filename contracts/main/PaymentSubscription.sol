@@ -151,7 +151,7 @@ contract PaymentSubscription is Ownable {
 
         payTokenPlans(plan, msg.sender, msg.value, planId);
 
-        subscription.nextPayment = subscription.nextPayment + plan.frequency;
+        subscription.nextPayment = block.timestamp + plan.frequency;
     }
 
     function payTokenPlans(Plan storage plan, address subscriber, uint256 amount, uint256 planId) internal {
