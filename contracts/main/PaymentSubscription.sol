@@ -15,6 +15,7 @@ contract PaymentSubscription is Ownable {
         address token;
         uint256 amount;
         uint256 frequency;
+        uint256 planId;
     }
 
     struct Subscription {
@@ -23,9 +24,14 @@ contract PaymentSubscription is Ownable {
         uint256 nextPayment;
     }
 
+    struct SubscribedPlan {
+        uint256 planId;
+        address token;
+    }
+
     mapping(uint256 => Plan) public plans;
     mapping(address => mapping(uint256 => Subscription)) public subscriptions;
-    mapping(address => uint256) public userSubscriptionPlan;
+    mapping(address => Plan) public userPlans;
   
     event PlanCreated(
         string planName,
@@ -77,7 +83,8 @@ contract PaymentSubscription is Ownable {
             name,
             token,
             amount, 
-            frequency
+            frequency,
+            nextPlan
         );
 
         emit PlanCreated(name, token, amount, frequency);
@@ -94,7 +101,8 @@ contract PaymentSubscription is Ownable {
             name,
             token,
             amount, 
-            frequency
+            frequency,
+            planId
         );
 
         emit PlanUpdated(planId, name, token, amount, frequency);
@@ -102,7 +110,6 @@ contract PaymentSubscription is Ownable {
 
     function removePlan(uint256 planId) external onlyAdmin {
         Plan storage plan = plans[planId];
-    
         require(plan.amount > 0, 'this plan does not exist');
 
         delete plans[planId];
@@ -118,15 +125,13 @@ contract PaymentSubscription is Ownable {
         );
 
         delete subscriptions[msg.sender][planId]; 
-        delete userSubscriptionPlan[msg.sender];
-        
+        delete userPlans[msg.sender];
+
         emit SubscriptionCancelled(msg.sender, planId, block.timestamp);
     }
 
    function subscribe(uint256 planId) payable external {
-        IERC20 token = IERC20(plans[planId].token);
         Plan storage plan = plans[planId];
-
         require(plan.amount > 0, 'this plan does not exist');
 
         payTokenPlans(plan, msg.sender, msg.value, planId);
@@ -137,7 +142,7 @@ contract PaymentSubscription is Ownable {
             block.timestamp + plan.frequency
         );
 
-        userSubscriptionPlan[msg.sender] = planId;     
+        userPlans[msg.sender] = plan;
 
         emit SubscriptionCreated(msg.sender, planId, block.timestamp);
     }
