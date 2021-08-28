@@ -126,14 +126,7 @@ contract PaymentSubscription is Ownable {
 
         require(plan.amount > 0, 'this plan does not exist');
 
-        payTokenPlans(plan, msg.sender, msg.value);
-
-        emit PaymentSent(
-            msg.sender, 
-            plan.amount, 
-            planId, 
-            block.timestamp
-        );
+        payTokenPlans(plan, msg.sender, msg.value, planId);
 
         subscriptions[msg.sender][planId] = Subscription(
             msg.sender, 
@@ -156,18 +149,12 @@ contract PaymentSubscription is Ownable {
             'not due yet'
         );
 
-        payTokenPlans(plan, msg.sender, msg.value);
+        payTokenPlans(plan, msg.sender, msg.value, planId);
 
-        emit PaymentSent(
-            msg.sender,
-            plan.amount, 
-            planId, 
-            block.timestamp
-        );
         subscription.nextPayment = subscription.nextPayment + plan.frequency;
     }
 
-    function payTokenPlans(Plan storage plan, address subscriber, uint256 amount) internal {
+    function payTokenPlans(Plan storage plan, address subscriber, uint256 amount, uint256 planId) internal {
         //Token Plan
         if(plan.token != address(0)){
             IERC20 token = IERC20(plan.token);
@@ -176,6 +163,7 @@ contract PaymentSubscription is Ownable {
             //REFUND TFUEL
             if(amount > 0){
                 payable(subscriber).transfer(amount);
+                emit Imburse(payable(subscriber), amount);
             }
         }
         //TFUEL Plan
@@ -189,7 +177,14 @@ contract PaymentSubscription is Ownable {
                 payable(subscriber).transfer(reimbureTFUEL);
                 emit Imburse(payable(subscriber), reimbureTFUEL);
             }
-        }        
+        }
+
+        emit PaymentSent(
+            subscriber,
+            plan.amount, 
+            planId, 
+            block.timestamp
+        );        
     }
     
     function addAdmins(address[] calldata admins) external onlyOwner {
