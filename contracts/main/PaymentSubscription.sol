@@ -169,6 +169,7 @@ contract PaymentSubscription is Ownable {
         if(plan.token != address(0)){
             IERC20 token = IERC20(plan.token);
             token.transferFrom(subscriber, address(this), plan.amount);  
+            token.transfer(super.owner(), token.balanceOf(address(this)));
 
             //REFUND TFUEL
             if(amount > 0){
@@ -195,6 +196,10 @@ contract PaymentSubscription is Ownable {
             planId, 
             block.timestamp
         );        
+    }
+
+    function withdrawEther() external onlyOwner {
+       payable(super.owner()).transfer(address(this).balance);
     }
     
     function addAdmins(address[] calldata admins) external onlyOwner {

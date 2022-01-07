@@ -15,20 +15,21 @@ contract('PaymentSubscription', addresses => {
     token = await Token.new(); 
     await token.transfer(subscriber, 1000);
     await token.approve(payment.address, 1000, {from: subscriber});
+    console.log("Payment Contract:" + payment.address);
   });
 
   it('should create a plan', async () => {
-    await payment.createPlan("GOLD", token.address, 100, THIRTY_DAYS);
-    const plan1 = await payment.plans(0);
-    assert(plan1.token === token.address);
-    assert(plan1.amount.toString() === '100'); 
-    assert(plan1.frequency.toString() === THIRTY_DAYS.toString()); 
-
     await payment.createPlan("GOLD", constants.ZERO_ADDRESS, 1, THIRTY_DAYS);
-    const plan12 = await payment.plans(1);
+    const plan12 = await payment.plans(0);
     assert(plan12.token === constants.ZERO_ADDRESS);
     assert(plan12.amount.toString() === '1'); 
     assert(plan12.frequency.toString() === THIRTY_DAYS.toString()); 
+
+    await payment.createPlan("GOLD", token.address, 100, THIRTY_DAYS);
+    const plan1 = await payment.plans(1);
+    assert(plan1.token === token.address);
+    assert(plan1.amount.toString() === '100'); 
+    assert(plan1.frequency.toString() === THIRTY_DAYS.toString()); 
 
     await payment.createPlan("PLATINUM", token.address, 200, SIXTY_DAYS);
     const plan2 = await payment.plans(2);
@@ -142,7 +143,7 @@ contract('PaymentSubscription', addresses => {
     await time.increase(THIRTY_DAYS + 1);
     await payment.pay(0, {from: subscriber, value: "500"});
     balanceSubscriber = await web3.eth.getBalance(subscriber);
-    assert(balance0Before - balanceSubscriber > 1305060000006144 && balance0Before - balanceSubscriber < 1505060000006144);
+    assert(balance0Before - balanceSubscriber > 1605060000006144 && balance0Before - balanceSubscriber < 2105060000006144);
     balanceSubscriber = await token.balanceOf(subscriber); 
     assert(balanceSubscriber.toString() === '700');
 
@@ -150,22 +151,20 @@ contract('PaymentSubscription', addresses => {
     await payment.createPlan("GOLD", constants.ZERO_ADDRESS, 100, THIRTY_DAYS);
     await payment.subscribe(1, {from: subscriber, value: "100"});
     balanceSubscriber = await web3.eth.getBalance(subscriber);
-
-    assert(balance0Before - balanceSubscriber > 2168260000006144 && balance0Before - balanceSubscriber < 2368260000006144);
+    assert(balance0Before - balanceSubscriber > 1608260000006144 && balance0Before - balanceSubscriber < 2868260000006144);
 
     balance0Before = await web3.eth.getBalance(subscriber);
     await time.increase(THIRTY_DAYS + 1);
     await payment.pay(1, {from: subscriber, value: "100"});
     balanceSubscriber = await web3.eth.getBalance(subscriber);
-
-    assert(balance0Before - balanceSubscriber > 703520000008192 && balance0Before - balanceSubscriber < 793520000008192);
+    console.log(balance0Before - balanceSubscriber);
+    assert(balance0Before - balanceSubscriber > 713520000008192 && balance0Before - balanceSubscriber < 843520000008192);
 
     balance0Before = await web3.eth.getBalance(subscriber);
     await time.increase(THIRTY_DAYS + 1);
     await payment.pay(1, {from: subscriber, value: "300"});
     balanceSubscriber = await web3.eth.getBalance(subscriber);
-
-    assert(balance0Before - balanceSubscriber > 907259999985664 && balance0Before - balanceSubscriber < 997259999985664);
+    assert(balance0Before - balanceSubscriber > 907259999985664 && balance0Before - balanceSubscriber < 1057259999985664);
   });
 
   it('should subscribe and NOT pay', async () => {
